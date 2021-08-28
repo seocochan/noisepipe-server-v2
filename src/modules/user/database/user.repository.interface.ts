@@ -8,6 +8,8 @@ export abstract class UserRepositoryPort extends RepositoryPort<
   UserEntity,
   UserProps
 > {
+  abstract findOneByUsername(username: string): Promise<UserEntity | null>;
+
   abstract findOneByEmailOrThrow(email: string): Promise<UserEntity>;
 
   abstract exists(email: string): Promise<boolean>;

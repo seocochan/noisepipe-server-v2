@@ -33,6 +33,14 @@ export class UserRepository
     );
   }
 
+  async findOneByUsername(username: string): Promise<UserEntity | null> {
+    const user = await this.userRepository.findOne({ username });
+    if (!user) {
+      return null;
+    }
+    return this.mapper.toDomainEntity(user);
+  }
+
   private async findOneByEmail(email: string): Promise<UserOrmEntity | null> {
     const user = await this.userRepository.findOne({ email });
     return user;

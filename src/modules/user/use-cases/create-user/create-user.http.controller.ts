@@ -25,6 +25,8 @@ export class CreateUserHttpController {
   })
   async create(@Body() body: CreateUserRequest): Promise<IdResponse> {
     const command = new CreateUserCommand({
+      username: '',
+      password: '',
       email: body.email,
       address: {
         country: body.country,

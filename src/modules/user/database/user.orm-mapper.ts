@@ -1,3 +1,5 @@
+import { Password } from '@modules/user/domain/value-objects/password.value-object';
+import { Username } from '@modules/user/domain/value-objects/username.value-object';
 import {
   OrmEntityProps,
   OrmMapper,
@@ -12,6 +14,8 @@ export class UserOrmMapper extends OrmMapper<UserEntity, UserOrmEntity> {
     const props = entity.getPropsCopy();
 
     const ormProps: OrmEntityProps<UserOrmEntity> = {
+      username: props.username.value,
+      password: props.password.value,
       email: props.email.value,
       country: props.address.country,
       postalCode: props.address.postalCode,
@@ -22,6 +26,8 @@ export class UserOrmMapper extends OrmMapper<UserEntity, UserOrmEntity> {
 
   protected toDomainProps(ormEntity: UserOrmEntity): UserProps {
     const props: UserProps = {
+      username: new Username(ormEntity.username),
+      password: new Password(ormEntity.password),
       email: new Email(ormEntity.email),
       address: new Address({
         street: ormEntity.street,

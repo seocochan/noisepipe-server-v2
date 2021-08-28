@@ -9,6 +9,13 @@ export class UserOrmEntity extends OrmEntityBase {
 
   @Property()
   @Unique()
+  username!: string;
+
+  @Property()
+  password!: string;
+
+  @Property()
+  @Unique()
   email!: string;
 
   @Property()

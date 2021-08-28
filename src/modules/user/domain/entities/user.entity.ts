@@ -1,9 +1,13 @@
+import { Password } from '@modules/user/domain/value-objects/password.value-object';
+import { Username } from '@modules/user/domain/value-objects/username.value-object';
 import { AggregateRoot } from 'src/core/base-classes/aggregate-root.base';
 import { UserCreatedDomainEvent } from '../events/user-created.domain-event';
 import { Address, AddressProps } from '../value-objects/address.value-object';
 import { Email } from '../value-objects/email.value-object';
 
 export interface UserProps {
+  username: Username;
+  password: Password;
   email: Email;
   address: Address;
 }
@@ -30,6 +34,14 @@ export class UserEntity extends AggregateRoot<UserProps> {
   from outside modifications by using assignment, for example:
   "user.email = someOtherEmail". This technique only allows
   updating value by using a dedicated 'update' method (see updateAddress below) */
+  get username(): Username {
+    return this.props.username;
+  }
+
+  get password(): Password {
+    return this.props.password;
+  }
+
   get address(): Address {
     return this.props.address;
   }
