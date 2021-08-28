@@ -1,11 +1,12 @@
+import { setOrmInstance } from '@core/decorators/transactional.decorator';
 import { MikroORM } from '@mikro-orm/core';
 import { MikroOrmModule } from '@mikro-orm/nestjs';
+import { AuthModule } from '@modules/auth/auth.module';
 import { DomainEventHandlersModule } from '@modules/domain-event-handlers/domain-event-handlers.module';
 import { EmailModule } from '@modules/email/email.module';
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { UserModule } from 'src/modules/user/user.module';
-import { setOrmInstance } from './core/decorators/transactional.decorator';
 
 @Module({
   imports: [
@@ -19,6 +20,7 @@ import { setOrmInstance } from './core/decorators/transactional.decorator';
     MikroOrmModule.forRoot(),
     DomainEventHandlersModule,
     EmailModule,
+    AuthModule,
     UserModule,
   ],
 })

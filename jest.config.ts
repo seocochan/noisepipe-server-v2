@@ -9,6 +9,7 @@ const config: Config.InitialOptions = {
     '^src(.*)$': '<rootDir>/$1',
     '^@modules(.*)$': '<rootDir>/modules/$1',
     '^@config(.*)$': '<rootDir>/infrastructure/configs/$1',
+    '^@core(.*)$': '<rootDir>/core/$1',
     '^@exceptions(.*)$': '<rootDir>/core/exceptions/$1',
   },
 };

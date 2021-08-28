@@ -22,5 +22,6 @@ import { DeleteUserHttpController } from './use-cases/remove-user/delete-user.co
     CreateUserService,
     DeleteUserService,
   ],
+  exports: [userRepositoryPortProvider],
 })
 export class UserModule {}

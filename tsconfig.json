@@ -20,6 +20,9 @@
       "@config/*": [
         "src/infrastructure/configs/*"
       ],
+      "@core/*": [
+        "src/core/*"
+      ],
       "@exceptions": [
         "src/core/exceptions"
       ]
