@@ -3,6 +3,7 @@ import {
   DomainException,
   ExceptionBase,
   NotFoundException,
+  UnauthorizedException,
 } from '@exceptions';
 import {
   CallHandler,
@@ -11,6 +12,7 @@ import {
   ForbiddenException as NestForbiddenException,
   NestInterceptor,
   NotFoundException as NestNotFoundException,
+  UnauthorizedException as NestUnauthorizedException,
 } from '@nestjs/common';
 import { Observable, throwError } from 'rxjs';
 import { catchError } from 'rxjs/operators';
@@ -24,6 +26,9 @@ export class ExceptionInterceptor implements NestInterceptor {
       catchError((err) => {
         if (err instanceof DomainException) {
           throw new NestForbiddenException(err.message);
+        }
+        if (err instanceof UnauthorizedException) {
+          throw new NestUnauthorizedException(err.message);
         }
         if (err instanceof NotFoundException) {
           throw new NestNotFoundException(err.message);

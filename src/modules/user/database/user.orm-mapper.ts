@@ -1,40 +1,53 @@
+import { EntityManager } from '@mikro-orm/core';
+import { UserRoleOrmMapper } from '@modules/user/database/user-role.orm-mapper';
 import { Password } from '@modules/user/domain/value-objects/password.value-object';
 import { Username } from '@modules/user/domain/value-objects/username.value-object';
-import {
-  OrmEntityProps,
-  OrmMapper,
-} from 'src/infrastructure/database/base-classes/orm-mapper.base';
+import { OrmMapper } from 'src/infrastructure/database/base-classes/orm-mapper.base';
 import { UserEntity, UserProps } from '../domain/entities/user.entity';
-import { Address } from '../domain/value-objects/address.value-object';
-import { Email } from '../domain/value-objects/email.value-object';
 import { UserOrmEntity } from './user.orm-entity';
 
 export class UserOrmMapper extends OrmMapper<UserEntity, UserOrmEntity> {
-  protected toOrmProps(entity: UserEntity): OrmEntityProps<UserOrmEntity> {
-    const props = entity.getPropsCopy();
+  private userRoleOrmMapper: UserRoleOrmMapper;
 
-    const ormProps: OrmEntityProps<UserOrmEntity> = {
-      username: props.username.value,
-      password: props.password.value,
-      email: props.email.value,
-      country: props.address.country,
-      postalCode: props.address.postalCode,
-      street: props.address.street,
-    };
-    return ormProps;
+  constructor(private readonly em: EntityManager) {
+    super();
+    this.userRoleOrmMapper = new UserRoleOrmMapper(em);
   }
 
-  protected toDomainProps(ormEntity: UserOrmEntity): UserProps {
-    const props: UserProps = {
-      username: new Username(ormEntity.username),
-      password: new Password(ormEntity.password),
-      email: new Email(ormEntity.email),
-      address: new Address({
-        street: ormEntity.street,
-        postalCode: ormEntity.postalCode,
-        country: ormEntity.country,
-      }),
+  toDomainEntity(ormEntity: UserOrmEntity): UserEntity {
+    const entity = this.assignPropsToDomainEntity<UserProps>(
+      UserEntity,
+      {
+        username: new Username(ormEntity.username),
+        password: new Password(ormEntity.password),
+        roles: ormEntity.roles
+          .getItems()
+          .map((it) => this.userRoleOrmMapper.toDomainEntity(it)),
+      },
+      ormEntity,
+    );
+    return entity;
+  }
+
+  toOrmEntity(entity: UserEntity): UserOrmEntity {
+    const props = entity.getPropsCopy();
+    const ormProps = {
+      id: props.id.value,
+      createdAt: props.createdAt.value,
+      updatedAt: props.updatedAt.value,
+      username: props.username.value,
+      password: props.password.value,
     };
-    return props;
+
+    const persistent = this.em
+      .getUnitOfWork()
+      .getById<UserOrmEntity>('UserOrmEntity', props.id.value);
+    const ormEntity = persistent
+      ? this.em.assign(persistent, ormProps)
+      : new UserOrmEntity(ormProps);
+    ormEntity.roles.set(
+      props.roles.map((it) => this.userRoleOrmMapper.toOrmEntity(it)),
+    );
+    return ormEntity;
   }
 }

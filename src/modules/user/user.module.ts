@@ -1,27 +1,36 @@
 import { MikroOrmModule } from '@mikro-orm/nestjs';
-import { CreateUserService } from '@modules/user/use-cases/create-user/create-user.service';
+import { UserRoleOrmEntity } from '@modules/user/database/user-role.orm-entity';
+import { FindUserByUsernameHttpController } from '@modules/user/use-cases/find-user-by-username/find-user-by-username.http.controller';
+import { GetCurrentUserHttpController } from '@modules/user/use-cases/get-current-user/get-current-user.http.controller';
 import { DeleteUserService } from '@modules/user/use-cases/remove-user/delete-user.service';
-import { userRepositoryPortProvider } from '@modules/user/user.providers';
+import { SearchUserService } from '@modules/user/use-cases/search-users/search-user.service';
+import { SearchUsersHttpController } from '@modules/user/use-cases/search-users/search-users.http.controller';
+import { ValidateUsernameHttpController } from '@modules/user/use-cases/validate-username/validate-username.http.controller';
+import {
+  userRepositoryPortProvider,
+  userRoleRepositoryPortProvider,
+} from '@modules/user/user.providers';
 import { Module } from '@nestjs/common';
 import { UserOrmEntity } from './database/user.orm-entity';
 import { UserRepository } from './database/user.repository';
-import { CreateUserHttpController } from './use-cases/create-user/create-user.http.controller';
-import { FindUserByEmailHttpController } from './use-cases/find-user-by-email/find-user-by-email.http.controller';
 import { DeleteUserHttpController } from './use-cases/remove-user/delete-user.controller';
 
 @Module({
-  imports: [MikroOrmModule.forFeature([UserOrmEntity])],
+  imports: [MikroOrmModule.forFeature([UserOrmEntity, UserRoleOrmEntity])],
   controllers: [
-    CreateUserHttpController,
+    ValidateUsernameHttpController,
+    GetCurrentUserHttpController,
+    FindUserByUsernameHttpController,
+    SearchUsersHttpController,
     DeleteUserHttpController,
-    FindUserByEmailHttpController,
   ],
   providers: [
     UserRepository,
     userRepositoryPortProvider,
-    CreateUserService,
+    userRoleRepositoryPortProvider,
+    SearchUserService,
     DeleteUserService,
   ],
-  exports: [userRepositoryPortProvider],
+  exports: [userRepositoryPortProvider, userRoleRepositoryPortProvider],
 })
 export class UserModule {}

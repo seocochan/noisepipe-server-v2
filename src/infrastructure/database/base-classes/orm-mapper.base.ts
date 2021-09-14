@@ -1,39 +1,17 @@
-/* eslint-disable new-cap */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { BaseEntityProps } from 'src/core/base-classes/entity.base';
 import { DateVO } from 'src/core/value-objects/date.value-object';
 import { ID } from 'src/core/value-objects/id.value-object';
+import { OrmDateAuditEntityBase } from './orm-date-audit.entity.base';
 import { OrmEntityBase } from './orm.entity.base';
 
-export type OrmEntityProps<OrmEntity> = Omit<
-  OrmEntity,
-  'id' | 'createdAt' | 'updatedAt'
->;
+export abstract class OrmMapper<
+  TEntity extends BaseEntityProps,
+  TOrmEntity extends OrmEntityBase,
+> {
+  abstract toDomainEntity(ormEntity: TOrmEntity): TEntity;
 
-export abstract class OrmMapper<Entity extends BaseEntityProps, OrmEntity> {
-  constructor(
-    private entityConstructor: new (...args: any[]) => Entity,
-    private ormEntityConstructor: new (...args: any[]) => OrmEntity,
-  ) {}
-
-  protected abstract toDomainProps(ormEntity: OrmEntity): unknown;
-
-  protected abstract toOrmProps(entity: Entity): OrmEntityProps<OrmEntity>;
-
-  toDomainEntity(ormEntity: OrmEntity): Entity {
-    const props = this.toDomainProps(ormEntity);
-    return this.assignPropsToEntity(props, ormEntity);
-  }
-
-  toOrmEntity(entity: Entity): OrmEntity {
-    const props = this.toOrmProps(entity);
-    return new this.ormEntityConstructor({
-      ...props,
-      id: entity.id.value,
-      createdAt: entity.createdAt.value,
-      updatedAt: entity.updatedAt.value,
-    });
-  }
+  abstract toOrmEntity(entity: TEntity): TOrmEntity;
 
   /** Tricking TypeScript to do mapping from OrmEntity to Entity's protected/private properties.
    * This is done to avoid public setters or accepting all props through constructor.
@@ -43,18 +21,19 @@ export abstract class OrmMapper<Entity extends BaseEntityProps, OrmEntity> {
    */
 
   /* eslint-disable @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access*/
-  private assignPropsToEntity<Props>(
+  protected assignPropsToDomainEntity<Props>(
+    entityCtor: new (...args: any[]) => TEntity,
     entityProps: Props,
-    ormEntity: OrmEntity,
-  ): Entity {
-    const entityCopy: any = Object.create(this.entityConstructor.prototype);
-    const ormEntityBase: OrmEntityBase = ormEntity as unknown as OrmEntityBase;
-
+    ormEntity: TOrmEntity,
+  ): TEntity {
+    const entityCopy: any = Object.create(entityCtor.prototype);
     entityCopy.props = entityProps;
-    entityCopy._id = new ID(ormEntityBase.id);
-    entityCopy._createdAt = new DateVO(ormEntityBase.createdAt);
-    entityCopy._updatedAt = new DateVO(ormEntityBase.updatedAt);
+    entityCopy._id = new ID(ormEntity.id);
+    if (ormEntity instanceof OrmDateAuditEntityBase) {
+      entityCopy._createdAt = new DateVO(ormEntity.createdAt);
+      entityCopy._updatedAt = new DateVO(ormEntity.updatedAt);
+    }
 
-    return entityCopy as unknown as Entity;
+    return entityCopy as unknown as TEntity;
   }
 }

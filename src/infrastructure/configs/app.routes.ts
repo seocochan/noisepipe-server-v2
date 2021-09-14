@@ -1,13 +1,17 @@
 const authRoot = '/auth';
-const usersRoot = '/user';
+const usersRoot = '/users';
 
 export const routes = {
   auth: {
     signin: `${authRoot}/signin`,
     signup: `${authRoot}/signup`,
+    password: `${authRoot}/password`,
   },
   user: {
     root: usersRoot,
-    delete: `${usersRoot}/:id`,
+    me: `${usersRoot}/me`,
+    id: `${usersRoot}/:id`,
+    username: `${usersRoot}/:username`,
+    validateUsername: `${usersRoot}/validation/username`,
   },
 };

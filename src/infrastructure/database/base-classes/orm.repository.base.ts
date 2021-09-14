@@ -1,3 +1,9 @@
+import { BaseEntityProps } from '@core/base-classes/entity.base';
+import {
+  DataWithPaginationMeta,
+  FindManyPaginatedParams,
+  RepositoryPort,
+} from '@core/ports/repository.ports';
 import { NotFoundException } from '@exceptions';
 import {
   EntityRepository,
@@ -8,26 +14,16 @@ import {
 import { DomainEvents } from 'src/core/domain-events';
 import { Logger } from 'src/core/ports/logger.port';
 import { ID } from 'src/core/value-objects/id.value-object';
-import { BaseEntityProps } from '../../../core/base-classes/entity.base';
-import {
-  DataWithPaginationMeta,
-  FindManyPaginatedParams,
-  QueryParams,
-  RepositoryPort,
-} from '../../../core/ports/repository.ports';
 import { OrmMapper } from './orm-mapper.base';
+import { OrmEntityBase } from './orm.entity.base';
 
-export type WhereCondition<TOrmEntity> =
-  | FilterQuery<TOrmEntity>[]
-  | FilterQuery<TOrmEntity>
-  | Record<string, unknown>
-  | string;
+export type WhereCondition<TOrmEntity> = FilterQuery<TOrmEntity>;
 
 export abstract class OrmRepositoryBase<
   TEntity extends BaseEntityProps,
-  TEntityProps,
-  TOrmEntity,
-> implements RepositoryPort<TEntity, TEntityProps>
+  TQueryParams,
+  TOrmEntity extends OrmEntityBase,
+> implements RepositoryPort<TEntity, TQueryParams>
 {
   protected constructor(
     protected readonly repository: EntityRepository<TOrmEntity>,
@@ -42,7 +38,7 @@ export abstract class OrmRepositoryBase<
   protected entityName = this.repository.entityName.toString();
 
   protected abstract prepareQuery(
-    params: QueryParams<TEntityProps>,
+    params: TQueryParams,
   ): WhereCondition<TOrmEntity>;
 
   async save(entity: TEntity): Promise<TEntity> {
@@ -71,9 +67,7 @@ export abstract class OrmRepositoryBase<
     return ormEntities.map((entity) => this.mapper.toDomainEntity(entity));
   }
 
-  async findOne(
-    params: QueryParams<TEntityProps> = {},
-  ): Promise<TEntity | undefined> {
+  async findOne(params: TQueryParams): Promise<TEntity | undefined> {
     const found = await this.repository.findOne(
       this.prepareQuery(params) as FilterQuery<TOrmEntity>,
       { populate: this.relations },
@@ -81,9 +75,7 @@ export abstract class OrmRepositoryBase<
     return found ? this.mapper.toDomainEntity(found) : undefined;
   }
 
-  async findOneOrThrow(
-    params: QueryParams<TEntityProps> = {},
-  ): Promise<TEntity> {
+  async findOneOrThrow(params: TQueryParams): Promise<TEntity> {
     const found = await this.findOne(params);
     if (!found) {
       throw new NotFoundException();
@@ -92,16 +84,19 @@ export abstract class OrmRepositoryBase<
   }
 
   async findOneByIdOrThrow(id: ID | string): Promise<TEntity> {
-    const found = await this.repository.findOne({
-      id: id instanceof ID ? id.value : id,
-    } as Primary<string>);
+    const found = await this.repository.findOne(
+      {
+        id: id instanceof ID ? id.value : id,
+      } as Primary<string>,
+      { populate: this.relations },
+    );
     if (!found) {
       throw new NotFoundException();
     }
     return this.mapper.toDomainEntity(found);
   }
 
-  async findMany(params: QueryParams<TEntityProps> = {}): Promise<TEntity[]> {
+  async findMany(params: TQueryParams): Promise<TEntity[]> {
     const result = await this.repository.find(
       this.prepareQuery(params) as FilterQuery<TOrmEntity>,
       { populate: this.relations },
@@ -111,30 +106,30 @@ export abstract class OrmRepositoryBase<
   }
 
   async findManyPaginated({
-    params = {},
+    params,
     pagination,
     orderBy,
-  }: FindManyPaginatedParams<TEntityProps>): Promise<
-    DataWithPaginationMeta<TEntity[]>
+  }: FindManyPaginatedParams<TQueryParams>): Promise<
+    DataWithPaginationMeta<TEntity>
   > {
+    console.log('@@ page', pagination);
+    const limit = pagination?.limit ?? 500;
+    const offset = pagination?.offset ?? 0;
     const [data, count] = await this.repository.findAndCount(
       this.prepareQuery(params) as FilterQuery<TOrmEntity>,
       {
         populate: this.relations,
         orderBy: orderBy,
         limit: pagination?.limit,
-        offset: pagination?.skip,
+        offset: pagination?.offset,
       } as FindOptions<TOrmEntity>,
     );
-
-    const result: DataWithPaginationMeta<TEntity[]> = {
+    return {
       data: data.map((item) => this.mapper.toDomainEntity(item)),
       count,
-      limit: pagination?.limit,
-      page: pagination?.page,
+      limit,
+      offset,
     };
-
-    return result;
   }
 
   async delete(entity: TEntity): Promise<TEntity> {

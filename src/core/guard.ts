@@ -52,4 +52,8 @@ export class Guard {
     }
     return false;
   }
+
+  static match(value: string, pattern: RegExp): boolean {
+    return pattern.test(value);
+  }
 }

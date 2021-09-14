@@ -12,5 +12,6 @@ const config: Config.InitialOptions = {
     '^@core(.*)$': '<rootDir>/core/$1',
     '^@exceptions(.*)$': '<rootDir>/core/exceptions/$1',
   },
+  setupFilesAfterEnv: ['<rootDir>/../test/setup.ts'],
 };
 export default config;

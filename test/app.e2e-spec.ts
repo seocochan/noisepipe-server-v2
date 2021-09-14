@@ -15,11 +15,8 @@ describe('App', () => {
     await app.init();
   });
 
-  it('/user (GET)', () => {
-    return request(app.getHttpServer())
-      .get('/user')
-      .send({ email: 'seoco@gmail.com' })
-      .expect(200);
+  it('/users/{username} (GET)', () => {
+    return request(app.getHttpServer()).get('/users/seoco').expect(200);
   });
 
   afterAll(async () => {

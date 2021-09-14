@@ -1,5 +1,3 @@
-import { BaseEntityProps } from '../base-classes/entity.base';
-import { DeepPartial } from '../types';
 import { ID } from '../value-objects/id.value-object';
 
 /*  Most of repositories will probably need generic 
@@ -9,10 +7,6 @@ import { ID } from '../value-objects/id.value-object';
     in a respective module/use case.
 */
 
-export type QueryParams<TEntityProps> = DeepPartial<
-  BaseEntityProps & TEntityProps
->;
-
 export interface Save<TEntity> {
   save(entity: TEntity): Promise<TEntity>;
 }
@@ -21,74 +15,78 @@ export interface SaveMultiple<TEntity> {
   saveMultiple(entities: TEntity[]): Promise<TEntity[]>;
 }
 
-export interface FindOne<TEntity, TEntityProps> {
-  findOneOrThrow(params: QueryParams<TEntityProps>): Promise<TEntity>;
+export interface FindOne<TEntity, TQueryParams> {
+  findOneOrThrow(params: TQueryParams): Promise<TEntity>;
 }
 
 export interface FindOneById<TEntity> {
   findOneByIdOrThrow(id: ID | string): Promise<TEntity>;
 }
 
-export interface FindMany<TEntity, TEntityProps> {
-  findMany(params: QueryParams<TEntityProps>): Promise<TEntity[]>;
+export interface FindMany<TEntity, TQueryParams> {
+  findMany(params: TQueryParams): Promise<TEntity[]>;
+}
+
+export enum OrderDirection {
+  ASC = 'ASC',
+  DESC = 'DESC',
 }
 
 export interface OrderBy {
-  [key: number]: -1 | 1;
+  [key: string]: OrderDirection;
 }
 
 export interface PaginationMeta {
-  skip?: number;
+  offset?: number;
   limit?: number;
-  page?: number;
 }
 
-export interface FindManyPaginatedParams<TEntityProps> {
-  params?: QueryParams<TEntityProps>;
+export interface FindManyPaginatedParams<TQueryParams> {
+  params: TQueryParams;
   pagination?: PaginationMeta;
   orderBy?: OrderBy;
 }
 
 export interface DataWithPaginationMeta<T> {
-  data: T;
+  data: T[];
   count: number;
-  limit?: number;
-  page?: number;
+  limit: number;
+  offset: number;
 }
 
 export interface FindManyPaginated<TEntity, TEntityProps> {
   findManyPaginated(
     options: FindManyPaginatedParams<TEntityProps>,
-  ): Promise<DataWithPaginationMeta<TEntity[]>>;
+  ): Promise<DataWithPaginationMeta<TEntity>>;
 }
 
 export interface DeleteOne<TEntity> {
   delete(entity: TEntity): Promise<TEntity>;
 }
 
-export abstract class RepositoryPort<TEntity, TEntityProps>
+export abstract class RepositoryPort<TEntity, TQueryParams>
   implements
     Save<TEntity>,
     SaveMultiple<TEntity>,
-    FindOne<TEntity, TEntityProps>,
+    FindOne<TEntity, TQueryParams>,
     FindOneById<TEntity>,
-    FindMany<TEntity, TEntityProps>,
-    FindManyPaginated<TEntity, TEntityProps>,
+    FindMany<TEntity, TQueryParams>,
+    FindManyPaginated<TEntity, TQueryParams>,
     DeleteOne<TEntity>
 {
   abstract save(entity: TEntity): Promise<TEntity>;
 
   abstract saveMultiple(entities: TEntity[]): Promise<TEntity[]>;
 
-  abstract findOneOrThrow(params: QueryParams<TEntityProps>): Promise<TEntity>;
+  abstract findOneOrThrow(params: TQueryParams): Promise<TEntity>;
 
   abstract findOneByIdOrThrow(id: ID | string): Promise<TEntity>;
 
-  abstract findMany(params: QueryParams<TEntityProps>): Promise<TEntity[]>;
+  abstract findMany(params: TQueryParams): Promise<TEntity[]>;
 
   abstract findManyPaginated(
-    options: FindManyPaginatedParams<TEntityProps>,
-  ): Promise<DataWithPaginationMeta<TEntity[]>>;
+    options: FindManyPaginatedParams<TQueryParams>,
+  ): Promise<DataWithPaginationMeta<TEntity>>;
 
   abstract delete(entity: TEntity): Promise<TEntity>;
 }

@@ -12,33 +12,12 @@ export class UserResponse extends ResponseBase implements User {
        (avoid blacklisting, which will return everything
         but blacklisted items, which can lead to a data leak).
     */
-    this.email = user.email.value;
-    this.country = user.address.country;
-    this.postalCode = user.address.postalCode;
-    this.street = user.address.street;
+    this.username = user.username.value;
   }
 
   /**
-   * User's email address
-   * @example 'joh-doe@gmail.com'
+   * User's name
+   * @example 'johndoe2099'
    */
-  email: string;
-
-  /**
-   * User's country of residence
-   * @example 'France'
-   */
-  country: string;
-
-  /**
-   * Postal code
-   * @example '123456'
-   */
-  postalCode: string;
-
-  /**
-   * Street where the user is registered
-   * @example 'Park Avenue'
-   */
-  street: string;
+  username: string;
 }
