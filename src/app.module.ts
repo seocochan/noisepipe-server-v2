@@ -2,11 +2,12 @@ import { setOrmInstance } from '@core/decorators/transactional.decorator';
 import { MikroORM } from '@mikro-orm/core';
 import { MikroOrmModule } from '@mikro-orm/nestjs';
 import { AuthModule } from '@modules/auth/auth.module';
+import { CollectionModule } from '@modules/collection/collection.module';
 import { DomainEventHandlersModule } from '@modules/domain-event-handlers/domain-event-handlers.module';
 import { EmailModule } from '@modules/email/email.module';
+import { UserModule } from '@modules/user/user.module';
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
-import { UserModule } from 'src/modules/user/user.module';
 
 @Module({
   imports: [
@@ -22,6 +23,7 @@ import { UserModule } from 'src/modules/user/user.module';
     EmailModule,
     AuthModule,
     UserModule,
+    CollectionModule,
   ],
 })
 export class AppModule {

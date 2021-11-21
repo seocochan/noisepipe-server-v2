@@ -1,5 +1,5 @@
-export class SearchUserCommand {
-  constructor(props: SearchUserCommand) {
+export class SearchUsersCommand {
+  constructor(props: SearchUsersCommand) {
     Object.assign(this, props);
   }
 

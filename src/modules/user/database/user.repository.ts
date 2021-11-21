@@ -1,4 +1,3 @@
-import { ObjectLiteral } from '@core/types';
 import { ID } from '@core/value-objects/id.value-object';
 import { NotFoundException } from '@exceptions';
 import { EntityManager, EntityRepository } from '@mikro-orm/core';
@@ -68,13 +67,15 @@ export class UserRepository
   protected prepareQuery(
     params: UserQueryParams,
   ): WhereCondition<UserOrmEntity> {
-    const where: ObjectLiteral = {};
+    const conditions: WhereCondition<UserOrmEntity>[] = [];
     if (params.id) {
-      where.id = params.id.value;
+      conditions.push({ id: params.id.value });
     }
     if (params.usernameLike) {
-      where.username = { $ilike: `%${params.usernameLike.value}%` };
+      conditions.push({
+        username: { $ilike: `%${params.usernameLike.value}%` },
+      });
     }
-    return where as WhereCondition<UserOrmEntity>;
+    return { $and: conditions };
   }
 }

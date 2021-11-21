@@ -6,8 +6,6 @@ import {
 } from '@modules/user/domain/entities/user-role.entity';
 import { OrmMapper } from '../../../infrastructure/database/base-classes/orm-mapper.base';
 
-export type UserRoleOrmProps = UserRoleOrmEntity;
-
 export class UserRoleOrmMapper extends OrmMapper<
   UserRoleEntity,
   UserRoleOrmEntity
@@ -16,7 +14,7 @@ export class UserRoleOrmMapper extends OrmMapper<
     super();
   }
 
-  toDomainEntity(ormEntity: UserRoleOrmProps): UserRoleEntity {
+  toDomainEntity(ormEntity: UserRoleOrmEntity): UserRoleEntity {
     const entity = this.assignPropsToDomainEntity<UserRoleProps>(
       UserRoleEntity,
       {

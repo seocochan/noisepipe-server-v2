@@ -11,10 +11,10 @@ export class UserRoleOrmEntity extends OrmEntityBase {
     super(props);
   }
 
-  @ManyToMany(() => UserOrmEntity, (user) => user.roles)
-  users = new Collection<UserOrmEntity>(this);
-
   @Enum(() => UserRoleName)
   @Unique()
   name!: UserRoleName;
+
+  @ManyToMany(() => UserOrmEntity, (user) => user.roles)
+  users = new Collection<UserOrmEntity>(this);
 }

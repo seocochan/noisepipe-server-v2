@@ -1,5 +1,6 @@
 const authRoot = '/auth';
 const usersRoot = '/users';
+const collectionsRoot = '/collections';
 
 export const routes = {
   auth: {
@@ -12,6 +13,10 @@ export const routes = {
     me: `${usersRoot}/me`,
     id: `${usersRoot}/:id`,
     username: `${usersRoot}/:username`,
+    usernameCollection: `${usersRoot}/:username/collections`,
     validateUsername: `${usersRoot}/validation/username`,
+  },
+  collection: {
+    root: collectionsRoot,
   },
 };

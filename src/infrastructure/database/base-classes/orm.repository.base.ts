@@ -1,6 +1,5 @@
 import { BaseEntityProps } from '@core/base-classes/entity.base';
 import {
-  DataWithPaginationMeta,
   FindManyPaginatedParams,
   RepositoryPort,
 } from '@core/ports/repository.ports';
@@ -109,12 +108,7 @@ export abstract class OrmRepositoryBase<
     params,
     pagination,
     orderBy,
-  }: FindManyPaginatedParams<TQueryParams>): Promise<
-    DataWithPaginationMeta<TEntity>
-  > {
-    console.log('@@ page', pagination);
-    const limit = pagination?.limit ?? 500;
-    const offset = pagination?.offset ?? 0;
+  }: FindManyPaginatedParams<TQueryParams>): Promise<[TEntity[], number]> {
     const [data, count] = await this.repository.findAndCount(
       this.prepareQuery(params) as FilterQuery<TOrmEntity>,
       {
@@ -124,12 +118,13 @@ export abstract class OrmRepositoryBase<
         offset: pagination?.offset,
       } as FindOptions<TOrmEntity>,
     );
-    return {
-      data: data.map((item) => this.mapper.toDomainEntity(item)),
-      count,
-      limit,
-      offset,
-    };
+    return [data.map((item) => this.mapper.toDomainEntity(item)), count];
+  }
+
+  async count(params: TQueryParams): Promise<number> {
+    return this.repository.count(
+      this.prepareQuery(params) as FilterQuery<TOrmEntity>,
+    );
   }
 
   async delete(entity: TEntity): Promise<TEntity> {

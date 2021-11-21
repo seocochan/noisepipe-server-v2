@@ -47,17 +47,14 @@ export interface FindManyPaginatedParams<TQueryParams> {
   orderBy?: OrderBy;
 }
 
-export interface DataWithPaginationMeta<T> {
-  data: T[];
-  count: number;
-  limit: number;
-  offset: number;
-}
-
 export interface FindManyPaginated<TEntity, TEntityProps> {
   findManyPaginated(
     options: FindManyPaginatedParams<TEntityProps>,
-  ): Promise<DataWithPaginationMeta<TEntity>>;
+  ): Promise<[TEntity[], number]>;
+}
+
+export interface Count<TQueryParams> {
+  count(params: TQueryParams): Promise<number>;
 }
 
 export interface DeleteOne<TEntity> {
@@ -72,6 +69,7 @@ export abstract class RepositoryPort<TEntity, TQueryParams>
     FindOneById<TEntity>,
     FindMany<TEntity, TQueryParams>,
     FindManyPaginated<TEntity, TQueryParams>,
+    Count<TQueryParams>,
     DeleteOne<TEntity>
 {
   abstract save(entity: TEntity): Promise<TEntity>;
@@ -86,7 +84,9 @@ export abstract class RepositoryPort<TEntity, TQueryParams>
 
   abstract findManyPaginated(
     options: FindManyPaginatedParams<TQueryParams>,
-  ): Promise<DataWithPaginationMeta<TEntity>>;
+  ): Promise<[TEntity[], number]>;
+
+  abstract count(params: TQueryParams): Promise<number>;
 
   abstract delete(entity: TEntity): Promise<TEntity>;
 }

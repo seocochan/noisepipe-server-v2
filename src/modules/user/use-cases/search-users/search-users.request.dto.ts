@@ -1,9 +1,9 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
 import { IsInt, IsNotEmpty, Max, Min } from 'class-validator';
-import { SearchUser } from '../../../../interface-adapters/interfaces/user/search-user.interface';
+import { SearchUsers } from '../../../../interface-adapters/interfaces/user/search-users.interface';
 
-export class SearchUserRequest implements SearchUser {
+export class SearchUsersRequest implements SearchUsers {
   @IsNotEmpty()
   q!: string;
 
